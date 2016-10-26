@@ -123,7 +123,13 @@ void SensorMessageGatewayNode::pointcloudCallback(const sensor_msgs::PointCloud2
 	//std::cout << "Time delay: " << time_delay.toSec() << std::endl;
 	if (target_publishing_rate_ != 0.0 && (ros::Time::now() - last_publishing_time_pcl_) > target_publishing_delay_)
 	{
-		pointcloud_pub_.publish(*pointcloud);
+        //reformat PointCloud for simulation
+		sensor_msgs::PointCloud2 reformated_pointcloud = *pointcloud;
+		reformated_pointcloud.height = 480;
+		reformated_pointcloud.width = 640;		
+		reformated_pointcloud.row_step = reformated_pointcloud.width * reformated_pointcloud.point_step;
+		
+		pointcloud_pub_.publish(reformated_pointcloud);
 		//color_image_pub_.publish(image_buffer_);
 		if (display_timing_ == true)
 			ROS_INFO("%d MessageGateway: Time stamp of pointcloud message: %f. Delay: %f.", pointcloud->header.seq, pointcloud->header.stamp.toSec(), ros::Time::now().toSec()-pointcloud->header.stamp.toSec());

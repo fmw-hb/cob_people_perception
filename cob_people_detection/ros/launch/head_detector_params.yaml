@@ -10,9 +10,13 @@ fill_unassigned_depth_values: true
 # double
 depth_increase_search_scale: 1.2
 
+# maximum distance for detection, everything further away is set to this value (set to 0 for no range limit)
+# float
+max_detection_depth: 3.0
+
 # minimum number (minus 1) of neighbor rectangles that makes up an object. (default: 68)
 # int
-depth_drop_groups: 40    #40
+depth_drop_groups: 10    #40
 
 # width of smallest search rectangle (default: 20)
 # int

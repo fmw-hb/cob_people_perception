@@ -86,6 +86,7 @@ HeadDetectorNode::HeadDetectorNode(ros::NodeHandle nh) :
 
 	// Parameters
 	double depth_increase_search_scale; // The factor by which the search window is scaled between the subsequent scans
+    float max_detection_depth; // The maximum depth for detection, everything further away is set to this value
 	int depth_drop_groups; // Minimum number (minus 1) of neighbor rectangles that makes up an object.
 	int depth_min_search_scale_x; // Minimum search scale x
 	int depth_min_search_scale_y; // Minimum search scale y
@@ -96,6 +97,8 @@ HeadDetectorNode::HeadDetectorNode(ros::NodeHandle nh) :
 	std::cout << "fill_unassigned_depth_values = " << fill_unassigned_depth_values_ << "\n";
 	node_handle_.param("depth_increase_search_scale", depth_increase_search_scale, 1.1);
 	std::cout << "depth_increase_search_scale = " << depth_increase_search_scale << "\n";
+    node_handle_.param("max_detection_depth", max_detection_depth, 6.0f);
+	std::cout << "max_detection_depth = " << max_detection_depth << "\n";
 	node_handle_.param("depth_drop_groups", depth_drop_groups, 68);
 	std::cout << "depth_drop_groups = " << depth_drop_groups << "\n";
 	node_handle_.param("depth_min_search_scale_x", depth_min_search_scale_x, 20);
@@ -200,7 +203,10 @@ unsigned long HeadDetectorNode::convertPclMessageToMat(const sensor_msgs::PointC
 			pcl::PointXYZRGB point_xyz = depth_cloud(u, v);
 			depth_data_ptr[0] = point_xyz.x;
 			depth_data_ptr[1] = point_xyz.y;
-			depth_data_ptr[2] = (isnan(point_xyz.z)) ? 0.f : point_xyz.z;
+            if (max_detection_depth == 0.0)
+                depth_data_ptr[2] = (isnan(point_xyz.z)) ? 0.f : point_xyz.z;
+            else
+			    depth_data_ptr[2] = (isnan(point_xyz.z)) ? 0.f : std::min(max_detection_depth, point_xyz.z);
 			color_data_ptr[0] = point_xyz.r;
 			color_data_ptr[1] = point_xyz.g;
 			color_data_ptr[2] = point_xyz.b;
